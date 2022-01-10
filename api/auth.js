@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const isEmail = require('validator/lib/isEmail');
 
-
 router.post('/', async (req, res) => {
 	const { email, password } = req.body.user;
 
@@ -19,17 +18,17 @@ router.post('/', async (req, res) => {
 
 	try {
 		//cek apakah email ada di database?
-		const user = await UserModel.findOne({
+		const User = await UserModel.findOne({
 			email: email.toLowerCase(),
 		}).select('+password');
-		if (!user) return res.status(401).send('Wrong email!');
-
+		console.log(email, password, User);
+		if (!User) return res.status(401).send('Wrong email!');
 		// cek password di database?
-		const isPassword = await bcrypt.compare(password, user.password);
+		const isPassword = await bcrypt.compare(password, User.password);
 		if (!isPassword) return res.status(401).send('Wrong password!');
 
 		// bikin jwt
-		const payload = { userId: userData._id };
+		const payload = { userId: User._id };
 		jwt.sign(
 			payload,
 			process.env.jwtSecret,

@@ -16,6 +16,12 @@ import {
 import CommonInputs from '../components/Common/CommonInputs';
 import ImageDrop from '../components/Common/ImageDrop';
 import useHandleData from '../utils/handlingForm/signInUp';
+import axios from 'axios';
+import baseUrl from '../utils/baseUrl';
+
+import { checkingUsername } from '../utils/handlingForm/checkingUsername';
+import { sendingUserCredentials } from '../utils/authUser';
+import uploadPic from '../utils/uploadPicToCloudinary';
 
 const Signup = () => {
 	const { user, setuser, configForm, setConfigForm, checkIsFilled } =
@@ -38,7 +44,36 @@ const Signup = () => {
 	const [highlighted, setHighlighted] = useState(false);
 	const inputRef = useRef();
 
-	const handleSubmit = (e) => e.preventDefault();
+	//ketika form di submit
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		//loadingnya jadi true
+		setConfigForm((configForm) => ({
+			...configForm,
+			formLoading: true,
+		}));
+
+		let profilePicUrl;
+		//cek jika media nya ada isinya, upload ke cloudinary dengan function uploadPic()
+		if (media !== null) profilePicUrl = await uploadPic(media);
+		// cek jika medianya ada isinya, tetapi eror ketika ngaplod ke cloudinary
+		if (media !== null && !profilePicUrl) {
+			// loadingnya matiin, kirim error message
+			setConfigForm((configForm) => ({
+				...configForm,
+				formLoading: false,
+				errorMsg: 'Error while uploading image',
+			}));
+			return;
+		}
+		// kirim user, profilePicUrl, route apinya, dan setConfigForm
+		await sendingUserCredentials(
+			user,
+			profilePicUrl,
+			'signup',
+			setConfigForm
+		);
+	};
 
 	const handleChange = (e) => {
 		const { name, value, files } = e.target;
@@ -52,6 +87,10 @@ const Signup = () => {
 	useEffect(() => {
 		checkIsFilled(user);
 	}, [user]);
+
+	useEffect(() => {
+		checkingUsername(username, setConfigForm, setuser);
+	}, [username]);
 
 	return (
 		<>
@@ -139,17 +178,6 @@ const Signup = () => {
 								...configForm,
 								username: val,
 							}));
-							if (regexUserName.test(e.target.value)) {
-								setConfigForm((configForm) => ({
-									...configForm,
-									usernameAvailable: true,
-								}));
-							} else {
-								setConfigForm((configForm) => ({
-									...configForm,
-									usernameAvailable: false,
-								}));
-							}
 						}}
 						fluid
 						icon={usernameAvailable ? 'check' : 'close'}
@@ -176,4 +204,3 @@ const Signup = () => {
 };
 
 export default Signup;
-

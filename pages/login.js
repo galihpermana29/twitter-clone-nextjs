@@ -15,6 +15,7 @@ import {
 
 import useHandleData from '../utils/handlingForm/signInUp';
 import { useEffect } from 'react';
+import { sendingUserCredentials } from '../utils/authUser';
 
 const Login = () => {
 	const { user, setuser, configForm, setConfigForm, checkIsFilled } =
@@ -36,7 +37,14 @@ const Login = () => {
 		setuser((user) => ({ ...user, [name]: value }));
 	};
 
-	const handleSubmit = (e) => e.preventDefault();
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		setConfigForm((configForm) => ({
+			...configForm,
+			formLoading: true,
+		}));
+		await sendingUserCredentials(user, '', 'auth', setConfigForm);
+	};
 
 	useEffect(() => {
 		checkIsFilled(user);

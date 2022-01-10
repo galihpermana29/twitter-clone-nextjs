@@ -22,7 +22,8 @@ router.get('/:username', async (req, res) => {
 		const user = await UserModel.findOne({
 			username: username.toLowerCase(),
 		});
-		if (!user) return res.status(401).send('Username already taken');
+		// console.log(username, !user);
+		if (user) return res.status(401).send('Username already taken');
 
 		//jika uniq
 		return res.status(200).send('Username available');
@@ -61,17 +62,18 @@ router.post('/', async (req, res) => {
 		const user = await UserModel.findOne({
 			email: email.toLowerCase(),
 		});
-		if (!user) return res.status(401).send('Email already taken');
+		if (user) return res.status(401).send('Email already taken');
 
 		// encrypt password
-		password = await bcrypt.hash(password, 10);
+		let pas;
+		pas = await bcrypt.hash(password, 10);
 
 		// siapkan model data user yang mau di store ke database
 		const userData = new UserModel({
 			name,
 			email: email.toLowerCase(),
 			username: username.toLowerCase(),
-			password,
+			password: pas,
 			profilePicUrl: req.body.profilePicUrl || userPng,
 		});
 

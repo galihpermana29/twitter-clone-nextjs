@@ -10,6 +10,7 @@ const useHandleData = (data) => {
 		youtube: '',
 		twitter: '',
 		instagram: '',
+		username: '',
 	});
 
 	const [configForm, setConfigForm] = useState({
@@ -35,16 +36,15 @@ const useHandleData = (data) => {
 					submitDisable: true,
 			  }));
 	};
-
 	if (data === 'SIGNIN') {
 		delete user['name'];
 		delete user['bio'];
+		delete user['username'];
 		delete user['facebook'];
 		delete user['twitter'];
 		delete user['instagram'];
 		delete user['youtube'];
 	}
-
 	return { user, setuser, configForm, setConfigForm, checkIsFilled };
 };
 
