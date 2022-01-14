@@ -5,7 +5,7 @@ import Router from 'next/router';
 import cookie from 'js-cookie';
 
 const setToken = (token) => {
-	cookie.set('token-user', token);
+	cookie.set('token', token);
 	Router.push('/');
 };
 
@@ -31,8 +31,9 @@ export const sendingUserCredentials = async (
 		}
 
 		const token = await axios.post(`${baseUrl}/api/${route}`, data);
+		// console.log('tokensss', token.data);
 		// set token pake cookies, lalu redirect
-		setToken(token);
+		setToken(token.data);
 	} catch (error) {
 		// jangan lupa set errormsg ketika error
 		const errorMsg = catchErrors(error);
@@ -50,3 +51,12 @@ export const sendingUserCredentials = async (
 };
 
 export const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
+
+export const redirectUser = (ctx, location) => {
+	if (ctx.req) {
+		ctx.res.writeHead(302, { Location: location });
+		ctx.res.end();
+	} else {
+		Router.push(location);
+	}
+};
